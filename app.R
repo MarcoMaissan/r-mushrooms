@@ -8,6 +8,7 @@ library(plotly)
 library(viridis)
 library(doBy)
 library(shinyjs)
+library(rsconnect)
 
 ##### Marco Maissan
 ##### 0949830
@@ -94,7 +95,8 @@ ui <- navbarPage("Mushrooms: edible or poisonous?",
                         fluidRow(
                             h1("Chance of mushroom being poisonous or edible"),
                             htmlOutput("error"),
-                            p("Source: ", a("Kaggle Mushroom Classification data set", href="https://www.kaggle.com/uciml/mushroom-classification", target="_blank")),
+                            p("Data Source: ", a("Kaggle Mushroom Classification data set", href="https://www.kaggle.com/uciml/mushroom-classification", target="_blank")),
+                            p("Github repo: ", a("MarcoMaissan/r-mushrooms", href="https://github.com/MarcoMaissan/r-mushrooms")),
                             htmlOutput("edibilityStatsMain"),
                             plotlyOutput("ratio", height="120px"),
                         ),
