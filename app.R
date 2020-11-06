@@ -13,7 +13,7 @@ library(shinyjs)
 ##### 0949830
 ##### Hogeschool Rotterdam
 
-mushrooms <- read.csv("C:/Users/marco/Documents/School/Minor/R/mushrooms.csv")
+mushrooms <- read.csv("./mushrooms.csv")
 original <- mushrooms
 
 
