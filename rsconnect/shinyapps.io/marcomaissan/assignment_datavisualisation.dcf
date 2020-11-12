@@ -5,6 +5,6 @@ account: marcomaissan
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3177506
-bundleId: 3827484
+bundleId: 3851368
 url: https://marcomaissan.shinyapps.io/assignment_datavisualisation/
-when: 1604660378.80565
+when: 1605175508.25835

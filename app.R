@@ -47,13 +47,13 @@ ds_habitat <- list("g" = "grasses", "l" = "leaves", "m" = "meadows", "p" = "path
 
 l <- list("class" = ds_classes, "cap.shape" = ds_cap_shape, "cap.surface" = ds_cap_surface,
           "cap.color" = ds_cap_color,
-     "bruises" = ds_bruises, "odor" = ds_odor, "gill.attachment" = ds_gill_attachment, "gill.spacing" = ds_gill_spacing,
-     "gill.size" = ds_gill_size, "gill.color" = ds_gill_color, "stalk.shape" = ds_stalk_shape, "stalk.root" = ds_stalk_root, 
-     "stalk.surface.above.ring" = ds_stalk_surface_above_ring, "stalk.surface.below.ring" = ds_stalk_surface_below_ring, 
-     "stalk.color.above.ring" = ds_stalk_color_above_ring, "stalk.color.below.ring" = ds_stalk_color_below_ring,
-     "veil.type" = ds_veil_type, "veil.color" = ds_veil_color, "ring.number" = ds_ring_number, 
-     "ring.type" = ds_ring_type, "spore.print.color" = ds_spore_print_color, "population" = ds_population, 
-     "habitat" = ds_habitat)
+          "bruises" = ds_bruises, "odor" = ds_odor, "gill.attachment" = ds_gill_attachment, "gill.spacing" = ds_gill_spacing,
+          "gill.size" = ds_gill_size, "gill.color" = ds_gill_color, "stalk.shape" = ds_stalk_shape, "stalk.root" = ds_stalk_root, 
+          "stalk.surface.above.ring" = ds_stalk_surface_above_ring, "stalk.surface.below.ring" = ds_stalk_surface_below_ring, 
+          "stalk.color.above.ring" = ds_stalk_color_above_ring, "stalk.color.below.ring" = ds_stalk_color_below_ring,
+          "veil.type" = ds_veil_type, "veil.color" = ds_veil_color, "ring.number" = ds_ring_number, 
+          "ring.type" = ds_ring_type, "spore.print.color" = ds_spore_print_color, "population" = ds_population, 
+          "habitat" = ds_habitat)
 
 listnames <- names(l)
 
@@ -65,69 +65,103 @@ mushrooms <- as.data.frame(sapply(listnames, function(item){
 #generate GUI
 ui <- navbarPage("Mushrooms: edible or poisonous?",
                  tabPanel("Safe to eat, or deadly poisonous?",
-                    sidebarPanel(
-                        h2("Choose mushroom properties"),
-                        fluidRow(
-                            column(12,
-                                   actionButton("resetAll", "Reset all"),
-                                 )
-                            
-                        ),
-                        fluidRow(
-                            #Programmatically generate all inputs
-                            useShinyjs(),
-                            id="form",
-                            column(6,
-                                   lapply(colnames(mushrooms)[-1][1:11], function(id) {
-                                       selectInput(id, gsub("\\.", " ", id), choices = c("Subset dataset" = "", unique(mushrooms[,id])), width="80%")
-                                   }),
-                                   ),
-                            column(6,
-                                   lapply(colnames(mushrooms)[-1][12:22], function(id) {
-                                       selectInput(id, gsub("\\.", " ", id), choices = c("Subset dataset" = "", unique(mushrooms[,id])), width="80%")
-                                   }),
-                                   )
-                            
-                        ),
-                        width = 4
-                    ),
-                    mainPanel(
-                        fluidRow(
-                            h1("Chance of mushroom being poisonous or edible"),
-                            htmlOutput("error"),
-                            p("Data Source: ", a("Kaggle Mushroom Classification data set", href="https://www.kaggle.com/uciml/mushroom-classification", target="_blank")),
-                            p("Github repo: ", a("MarcoMaissan/r-mushrooms", href="https://github.com/MarcoMaissan/r-mushrooms")),
-                            htmlOutput("edibilityStatsMain"),
-                            plotlyOutput("ratio", height="120px"),
-                        ),
-                        width=8
-                    )
-                ),
-                tabPanel("Relationship between mushroom properties and edibility",
-                         mainPanel(
-                             fluidRow(
-                                 
-                             p("This graph shows the relation between mushroom properties and its chance of being edible or not.
-                               The graph changes dynamically based on the selected in puts on the home page."),
-                             ),
-                             fluidRow(
-                                 htmlOutput("edibilityStatsSecond"),
-                                 br(),
-                                 chorddiagOutput("distPlot", height="1000px")
-                             ),
-                         width=12
-                         )
-                )
-                
-                
-                        
+                          sidebarPanel(
+                              h2("Choose mushroom properties"),
+                              fluidRow(
+                                  column(12,
+                                         actionButton("resetAll", "Reset all"),
+                                  )
+                                  
+                              ),
+                              fluidRow(
+                                  #Programmatically generate all inputs
+                                  useShinyjs(),
+                                  id="form",
+                                  column(6,
+                                         lapply(colnames(mushrooms)[-1][1:11], function(id) {
+                                             selectInput(id, gsub("\\.", " ", id), choices = c("Subset dataset" = "", unique(mushrooms[,id])), width="80%")
+                                         }),
+                                  ),
+                                  column(6,
+                                         lapply(colnames(mushrooms)[-1][12:22], function(id) {
+                                             selectInput(id, gsub("\\.", " ", id), choices = c("Subset dataset" = "", unique(mushrooms[,id])), width="80%")
+                                         }),
+                                  )
+                                  
+                              ),
+                              width = 4
+                          ),
+                          mainPanel(
+                              fluidRow(
+                                  h1("Chance of mushroom being poisonous or edible"),
+                                  p("Data Source: ", a("Kaggle Mushroom Classification data set", href="https://www.kaggle.com/uciml/mushroom-classification", target="_blank")),
+                                  p("Github repo: ", a("MarcoMaissan/r-mushrooms", href="https://github.com/MarcoMaissan/r-mushrooms", target="_blank")),
+                                  hr(),
+                                  htmlOutput("error"),
+                                  htmlOutput("edibilityStatsMain"),
+                                  br(),
+                                  actionButton("setNumberOfMushrooms", "Show in numbers"),
+                                  actionButton("setPercentageOfMushrooms", "Show in percentages"),
+                                  plotlyOutput("ratio", height="120px"),
+                              ),
+                              width=8
+                          )
+                 ),
+                 tabPanel("Properties of subset",
+                          sidebarPanel(
+                              h2("Selected properties"),
+                              fluidRow(
+                                  column(
+                                      p("This diagram is generated based on the input on the home page. Change the properties on the home page to change the diagram.")
+                                      ,width=12
+                                      
+                                  ), 
+                              ),
+                              width = 4
+                          ),
+                          mainPanel(
+                              fluidRow(
+                                  h1("Chance of mushroom being poisonous or edible"),
+                                  numericInput("amountOfProperties", "Max. amount of properties", 10, min = 1, max = 100),
+                                  actionButton("ascenddescent", "Ascending / Descending"),
+                                  
+                                  plotlyOutput("properties", height="600px") 
+                              ),
+                          ),
+                          width=8
+                 )
+                 ,
+                 tabPanel("Relationship between mushroom properties and edibility",
+                          mainPanel(
+                              fluidRow(
+                                  h1("Chance of mushroom being poisonous or edible"),
+                                  p("Data Source: ", a("Kaggle Mushroom Classification data set", href="https://www.kaggle.com/uciml/mushroom-classification", target="_blank")),
+                                  p("Github repo: ", a("MarcoMaissan/r-mushrooms", href="https://github.com/MarcoMaissan/r-mushrooms", target="_blank")),
+                                  hr(),
+                                  h2("How to read this graph"),
+                                  p("This diagram is generated based on the input on the home page. Change the properties on the home page to change the diagram. Are you uncertain about the edibility of a mushroom? This graph shows the top 10 most distinguishing features of both edible and poisonous mushrooms. It easily shows which properties define edibility and which properties are overlapping in both edible and poisonous mushrooms."),
+                                  p("Transposing the diagram changes the orientation of the diagram."),
+                                  hr(),
+                              ),
+                              fluidRow(
+                                  htmlOutput("edibilityStatsSecond"),
+                                  br(),
+                                  actionButton("transpose", "Transpose diagram"),
+                                  chorddiagOutput("distPlot", height="1000px")
+                              ),
+                              width=12
+                          )
+                 )
+                 
+                 
+                 
 )
 
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     adjecencyList <- reactiveVal()
-    
+    ascending <- reactiveVal(F)
     generatedataset <- reactive({
         #Read csv
         mushrooms <- original
@@ -165,13 +199,15 @@ server <- function(input, output) {
             ""
         }
     })
-
+    
+    transposed <- reactiveVal(FALSE)
+    
     output$distPlot <- renderChorddiag({
         mushrooms <- generatedataset()
         #all edible and all poisonous mushrooms
         edible <- getEdible()
         poisonous <- getPoisonous()
-        if(nrow(edible) > 0 && nrow(poisonous) > 0){
+        if(nrow(edible) > 0 || nrow(poisonous) > 0){
             creatematrix <- function(colname, dataset, class){
                 #Group by colname and count individual items
                 groupby <- dataset %>% count(colname)
@@ -196,6 +232,9 @@ server <- function(input, output) {
             if(nrow(edible) > 0){
                 a <- sapply(column_names, creatematrix, edible, "edible")
                 df_1 <- do.call(rbind, a)
+                
+                
+                df_1 <- head(df_1[order(-as.numeric(df_1[,"value"])),], n=10)
             }else{
                 df_1 <- NULL
             }
@@ -203,6 +242,7 @@ server <- function(input, output) {
             if(nrow(poisonous) > 0){
                 a <- sapply(column_names, creatematrix, poisonous, "poisonous")
                 df_2 <- do.call(rbind, a)
+                df_2 <- head(df_2[order(-as.numeric(df_2[,"value"])),], n=10)
             }else{
                 df_2 <- NULL
             }
@@ -220,82 +260,217 @@ server <- function(input, output) {
             
             #clean values
             df$to <- gsub('\\.', " ", df$to)
-    
+            
             
             #Make adjecent matrix since chorddiag does not understand adjecent list
             x <- adjacencyList2Matrix(df, square=TRUE)
             adjecencyList(x)
             #convert to data matrix
-            x <- data.matrix(x)
-            
+            if(transposed()){
+                x <- data.matrix(x) 
+            }else{
+                x <- data.matrix(x) %>% t
+            }
             #plot diagram
             chorddiag(x,  type="directional", showTicks = F, groupnameFontsize = 14, groupnamePadding = 5, margin=200)
         }
     })
+    setPlot <- reactiveVal(F)
     
-    output$ratio <- renderPlotly(
-        {
-            edible <- nrow(getEdible())
-            poisonous <-  nrow(getPoisonous())
-            y <- c('')
-            data <- data.frame(y, edible, poisonous)
-            fig <- plot_ly(data, x = ~edible, y = ~y, type = 'bar', orientation = 'h', name = 'Edible',
-                           marker = list(color = 'rgba(56, 188, 98, 0.8)',
-                                         line = list(color = 'rgba(0, 255, 0, 1.0)',
-                                                     width = 3)) 
-                           , showlegend = TRUE)
-            fig <- fig %>% add_trace(x = ~poisonous, name = 'Poisonous',
-                                     marker = list(color = 'rgba(255, 0, 0, 0.8)',
-                                                   line = list(color = 'rgba(255, 0, 0, 1.0)',
-                                                               width = 3)))
-            fig <- fig %>% layout(barmode = 'stack',
-                                  xaxis = list(title = "Amount of mushrooms"),
-                                  yaxis = list(title ="")) %>% config(displayModeBar = FALSE)
-            
-            fig
+    output$ratio <- renderPlotly({
+        type <- setPlot()
+        edible <- nrow(getEdible())
+        poisonous <-  nrow(getPoisonous())
+        y <- c('')
+        if(type == T){
+            total <- edible+poisonous
+            if(total > 0){
+                edible <- (edible/total)*100
+                poisonous <- (poisonous/total)*100
+            }else{
+                edible <- poisonous <- 0
+            }
+            title <- "Percentage" 
+        }else{
+            title <- "Number of mushrooms" 
         }
-    )
+        data <- data.frame(y, edible, poisonous)    
+        
+        
+        
+        fig <- plot_ly(data, x = ~edible, y = ~y, type = 'bar', orientation = 'h', name = 'Edible',
+                       marker = list(color = 'rgba(56, 188, 98, 0.8)',
+                                     line = list(color = 'rgba(0, 255, 0, 1.0)',
+                                                 width = 3)) 
+                       , showlegend = TRUE)
+        fig <- fig %>% add_trace(x = ~poisonous, name = 'Poisonous',
+                                 marker = list(color = 'rgba(255, 0, 0, 0.8)',
+                                               line = list(color = 'rgba(255, 0, 0, 1.0)',
+                                                           width = 3)))
+        fig <- fig %>% layout(barmode = 'stack',
+                              xaxis = list(title = title),
+                              yaxis = list(title ="")) %>% config(displayModeBar = FALSE)
+        
+        fig
+    })
+    
+    output$properties <- renderPlotly({
+        #get all info
+        edible <- getEdible()
+        poisonous <- getPoisonous()
+        
+        columnnames <- colnames(edible)
+        edibleproperties <- lapply(columnnames, function(colname){
+            cnt <- edible[, colname] %>% count
+            cnt$x <- paste(gsub("\\.", " ", colname), cnt$x)
+            return(cnt)
+        })[-1]
+        
+        columnnames <- colnames(poisonous)
+        poisonousproperties <- lapply(columnnames, function(colname){
+            cnt <- poisonous[, colname] %>% count
+            cnt$x <- paste(gsub("\\.", " ", colname), cnt$x)
+            return(cnt)
+        })[-1]
+        
+        poisonousproperties <- do.call(rbind, poisonousproperties)
+        edibleproperties <- do.call(rbind, edibleproperties)
+        
+        properties <- merge(x = poisonousproperties, y = edibleproperties, by = "x", all = TRUE)
+        properties[is.na(properties)] <- 0
+        
+        properties$sum <- properties$freq.x + properties$freq.y
+        
+        print(ascending())
+        if(ascending() == T){
+            properties <- properties[order(properties$sum), ]
+        }else{
+            properties <- properties[order(-properties$sum), ]
+        }
+        
+        properties <- properties[input$amountOfProperties:1,]
+        
+        x <- properties$x
+        y1 <- properties$freq.x
+        y2 <- properties$freq.y
+        data <- data.frame(x, y1, y2)
+        
+        #The default order will be alphabetized unless specified as below:
+        data$x <- factor(data$x, levels = data[["x"]])
+        
+        fig <- plot_ly(data, x = ~y1, y = ~x, type = 'bar', name = 'Poisonous', marker = list(color = 'red'), orientation='h')
+        fig <- fig %>% add_trace(x = ~y2, name = 'Edible', marker = list(color = 'green'))
+        fig <- fig %>% layout(xaxis = list(title = "Amount of mushrooms with property" ),
+                              yaxis = list(title = "Mushroom property"),
+                              margin = list(b = 100),
+                              barmode = 'group')
+        
+        fig
+    })
+    
+    generateDeath <- function(percentage){
+        if(!is.nan(percentage)){
+            if(percentage == 0){
+                "No"
+            }
+            else if(percentage < 25){
+                "Possibly"
+            }else if(percentage < 50){
+                "Likely"
+            }else if(percentage < 75){
+                "Very likely"
+            }else if(percentage < 100){
+                "Almost certainly"
+            }else{
+                "Yes"
+            }
+        }
+    }
     
     output$edibilityStatsMain <- renderText({
         edible <- nrow(getEdible())
         poisonous <- nrow(getPoisonous())
         total <- edible + poisonous
-        text1 <- paste("<b>Amount of edible mushrooms:</b> ", edible, ", <b>Percentage:</b> ", round((edible/total)*100, digits=2), "<br>")
-        text2 <- paste("<b>Amount of poisonous mushrooms:</b> ", poisonous, ", <b>Percentage:</b> ", round((poisonous/total)*100, digits=2))
-        paste(text1, text2)    
-        })
+        ediblePercentage <- round((edible/total)* 100, digits=2) 
+        poisonousPercentage <- round((poisonous/total) *100, digits=2) 
+        if(is.nan(ediblePercentage)){ediblePercentage <- 0}
+        if(is.nan(poisonousPercentage)){poisonousPercentage <- 0}
+        text1 <- paste("<h2><b>Will you die?</b> ", generateDeath(poisonousPercentage), "</h2><br>")
+        text2 <- paste("<b>Number of edible mushrooms:</b> ", edible, ", <b>Percentage:</b> ", ediblePercentage, "<br>")
+        text3 <- paste("<b>Number of poisonous mushrooms:</b> ", poisonous, ", <b>Percentage:</b> ", poisonousPercentage)
+        paste(text1, text2, text3)    
+    })
     
     output$edibilityStatsSecond <- renderText({
         edible <- nrow(getEdible())
         poisonous <- nrow(getPoisonous())
-        if(edible > 0 && poisonous > 0){
-        total <- edible + poisonous
-        text1 <- paste("<b>Amount of edible mushrooms:</b> ", edible, ", <b>Percentage:</b> ", round((edible/total)*100, digits=2), "<br>")
-        text2 <- paste("<b>Amount of poisonous mushrooms:</b> ", poisonous, ", <b>Percentage:</b> ", round((poisonous/total)*100, digits=2), "<br>")
-        
-        # mushies <- getEdible()
-        # print(getEdible() %>% count(cap.shape))
-        indexes <- which.maxn(adjecencyList()["edible",], 5)
-        items <- adjecencyList()["edible",][indexes]
-        top_properties <- paste(names(items), collapse = ", ")
-        text3 <- paste("<b>Top 5 distinguishing properties of edible mushrooms: </b>", top_properties, "<br>")
-        
-        indexes <- which.maxn(adjecencyList()["poisonous",], 5)
-        items <- adjecencyList()["poisonous",][indexes]
-        top_properties <- paste(names(items), collapse = ", ")
-        text4 <- paste("<b>top 5 distinguishing properties of poisonous mushrooms: </b>", top_properties, "<br>")
-        
-        paste(text1, text2, text3, text4)    
+        if(edible > 0 || poisonous > 0){
+            total <- edible + poisonous
+            ediblePercentage <- round((edible/total)* 100, digits=2) 
+            poisonousPercentage <- round((poisonous/total)*100, digits=2) 
+            text1 <- paste("<h2><b>Will you die?</b> ", generateDeath(poisonousPercentage), "</h2><br>")
+            text2 <- paste("<b>Number of edible mushrooms:</b> ", edible, ", <b>Percentage:</b> ", ediblePercentage, "<br>")
+            text3 <- paste("<b>Number of poisonous mushrooms:</b> ", poisonous, ", <b>Percentage:</b> ", poisonousPercentage, "<br>")
+            
+            # mushies <- getEdible()
+            # print(getEdible() %>% count(cap.shape))
+            
+            if(edible > 0){
+                indexes <- which.maxn(adjecencyList()["edible",], 3)
+                items <- adjecencyList()["edible",][indexes]
+                top_properties <- paste(names(items), collapse = ", ")
+                text4 <- paste("<b>Top 3 distinguishing properties of edible mushrooms in subset: </b>", top_properties, "<br>")
+            }else{
+                text4 <- ""
+            }
+            
+            if(poisonous > 0){
+                indexes <- which.maxn(adjecencyList()["poisonous",], 3)
+                items <- adjecencyList()["poisonous",][indexes]
+                top_properties <- paste(names(items), collapse = ", ")
+                text5 <- paste("<b>Top 3 distinguishing properties of poisonous mushrooms in subset: </b>", top_properties, "<br>")
+            }else{
+                text5 <- ""
+            }
+            paste(text1, text2, text3, text4, text5)    
         }
         else{
-            "<h2>No mushrooms with given property!</h2>"
+            "<h2>No mushrooms found!</h2>Change the properties on the home page."
         }
-        })
+    })
     
     #reset all inputs
     observeEvent(input$resetAll, {
         print("reset!")
         reset("form")
+    })
+    
+    
+    #Flip transposed value
+    observeEvent(input$transpose, {
+        if(transposed() == F){
+            transposed(T)
+        }else{
+            transposed(F)
+        }
+    })
+    
+    #reset all inputs
+    observeEvent(input$setNumberOfMushrooms, {
+        setPlot(F)
+    })
+    
+    #reset all inputs
+    observeEvent(input$setPercentageOfMushrooms, {
+        setPlot(T)
+    })
+    
+    observeEvent(input$ascenddescent,{
+        if(ascending() == T){
+            ascending(F)
+        }else{
+            ascending(T)
+        }
     })
 }
 
