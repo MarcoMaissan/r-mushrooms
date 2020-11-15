@@ -242,7 +242,6 @@ server <- function(input, output) {
     
     for (colname in colnames) {
       if (input[[colname]] != "") {
-        # print(paste(colname, input[[colname]], sep=": "))
         mushrooms <-
           mushrooms[mushrooms[[colname]] == input[[colname]],]
       }
@@ -276,6 +275,11 @@ server <- function(input, output) {
   output$error2 <- renderText({
     error()
   })
+  
+  output$error3 <- renderText({
+    error()
+  })
+  
   
   transposed <- reactiveVal(FALSE)
   
@@ -418,7 +422,7 @@ server <- function(input, output) {
       barmode = 'stack',
       xaxis = list(title = axisname),
       yaxis = list(title = ""),
-      title = "Ratio of mushroom edibility and poisonousness"
+      title = "Ratio of mushroom edibility and poisonousness of current subset"
     ) %>% config(displayModeBar = FALSE)
     
     fig
@@ -511,11 +515,68 @@ server <- function(input, output) {
         yaxis = list(title = "Mushroom property"),
         margin = list(b = 100),
         barmode = 'group',
-        title = "Ratio of edibility and poisonousness per mushroom property"
+        title = "Ratio of edibility and poisonousness per property of current subset"
       )
     
     fig
   })
+  
+  #generate plotly plot of most deadly properties
+  output$colors <- renderPlotly({
+    poisonous <- getPoisonous()
+    
+    columnnames <- colnames(poisonous)
+    columnnames <- columnnames[grep("color", columnnames)]
+      
+    poisonousproperties <-
+      lapply(columnnames, function(colname) {
+        if(nrow(poisonous) > 0){
+          cnt <- poisonous[, colname] %>% count
+          cnt$x <- paste(gsub("\\.", " ", colname), cnt$x)
+          return(cnt)
+        }
+        else{
+          #return empty dataframe if no properties are found
+          return(data.frame(x=colname, freq=0))
+        }
+      })[-1]
+    
+    #convert list to dataframe
+    properties <- do.call(rbind, poisonousproperties)
+
+    properties[is.na(properties)] <- 0
+    
+    #generate sum column for ascending/descending filter
+
+    properties <- properties[order(properties$freq),]
+
+    #The default order will be alphabetized unless specified as below:
+    properties$x <- factor(properties$x, levels = properties[["x"]])    
+
+    fig <-
+      plot_ly(
+        properties,
+        x = ~ properties$freq,
+        y = ~ properties$x,
+        type = 'bar',
+        name = 'Poisonous',
+        marker = list(color = 'red'),
+        orientation = 'h'
+      )
+    fig <-
+      fig %>% layout(
+        xaxis = list(title = "Number of poisonous mushrooms"),
+        yaxis = list(title = "Mushroom property and color"),
+        margin = list(b = 100),
+        barmode = 'group',
+        title = "Poisonous colors of mushrooms in current subset"
+      )
+    
+    fig
+  })
+  
+  
+  
   
   generateDeath <- function(percentage) {
     if (!is.nan(percentage)) {
@@ -614,7 +675,7 @@ server <- function(input, output) {
           paste(names(items), collapse = ", ")
         text4 <-
           paste(
-            "<b>Top 3 distinguishing properties of edible mushrooms in subset: </b>",
+            "<b>Top 3 distinguishing properties of edible mushrooms in current subset: </b>",
             top_properties,
             "<br>"
           )
@@ -645,7 +706,6 @@ server <- function(input, output) {
   
   #reset all inputs
   observeEvent(input$resetAll, {
-    print("reset!")
     reset("form")
   })
   

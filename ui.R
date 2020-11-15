@@ -341,8 +341,48 @@ ui <- navbarPage(
       plotlyOutput("properties", height = "600px")
     ),),
     width = 8
-  )
-  ,
+  ),
+  
+  tabPanel(
+    "Poisonous colors",
+    sidebarPanel(h2("Description"),
+                 fluidRow(column(
+                   p(
+                     "This diagram is generated based on the input on the home page. 
+          Change the properties on the home page to change the diagram. "),
+                   p(
+                     "This diagrams hows which colors are the deadliest. Be careful around these mushrooms!"
+                   ),
+                   hr(),
+                   p(
+                     "Data Source: ",
+                     a(
+                       "Kaggle Mushroom Classification data set",
+                       href = "https://www.kaggle.com/uciml/mushroom-classification",
+                       target = "_blank"
+                     )
+                   ),
+                   p(
+                     "Github repo: ",
+                     a(
+                       "MarcoMaissan/r-mushrooms",
+                       href = "https://github.com/MarcoMaissan/r-mushrooms",
+                       target = "_blank"
+                     )
+                   ),
+                   width = 12
+                   
+                 ),),
+                 width = 4),
+    mainPanel(fluidRow(
+      h1("Poisonous colors"),
+      htmlOutput("error3"),
+      
+      plotlyOutput("colors", height = "600px")
+    ),),
+    width = 8
+  ),
+  
   tabPanel(
     "Relationship between most influencing mushroom properties and edibility",
     mainPanel(
